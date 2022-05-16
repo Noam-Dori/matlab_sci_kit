@@ -24,6 +24,23 @@ switch func
     case "mean_diff"
         [diffVals, diffErrs] = stat_errorf("diff", inputVals, inputErrs);
         [val, valErr] = stat_errorf("mean", diffVals, diffErrs);
+    case "running_avg_2"
+        val = zeros(1, size(inputVals, 2) - 1);
+        valErr = zeros(size(val));
+        for i = 1:size(inputVals, 2) - 1
+            val(:, i) = (inputVals(:, i) + inputVals(:, i + 1)) / 2;
+            valErr(:, i) = hypot(inputErrs(:, i), inputErrs(:, i + 1)) / 2;
+        end
+    case "int"
+        % yN = SUM(DIFF(xI) * dyI)
+        val = cumtrapz(inputVals(1, :), inputVals(2, :));
+        [diffX, diffXErrs] = stat_errorf("diff", inputVals(1, :), inputErrs(1, :));
+        [avgY, avgYErrs] = stat_errorf("running_avg_2", inputVals(2, :), inputErrs(2, :));
+        elementErr = hypot(diffX .* avgYErrs, diffXErrs .* avgY);
+        valErr = zeros(1, size(inputVals, 2));
+        for i = 1:size(inputVals, 2) - 1
+            valErr(i + 1) = sqrt(sum(elementErr(1:i) .^ 2, 2));
+        end
 end
 
 end

@@ -2,10 +2,13 @@ function fitData = sci_fit(xData,yData,xError,yError,titleStructs)
 %UNTITLED Create a regression of the data with (optional) error bars
 %   Detailed explanation goes here
 % determine dimension of data. This is the basis for most loops.
-data_size = size(xData,1);
-points_size = size(xData, 2);
+data_size = size(yData,1);
+points_size = size(yData, 2);
 
-ignore_vector = -ones(1,points_size);
+% if neccesary, convert xData to match y dimension
+if size(xData,1) == 1
+    xData = xData .* ones(size(yData,1), 1);
+end
 
 % basic setup
 ft = fittype('poly1');
@@ -18,17 +21,7 @@ titles = cell(1,2 * data_size);
 hold on
 fitData = zeros(data_size,2,3);
 for data_index = 1:data_size
-    % get regression
-    [xCurve, yCurve] = prepareCurveData(xData(data_index,:), yData(data_index,:));
-    fitresult = fit(xCurve, yCurve, ft);
-
-    % extract polynomial values and errors
-    fitData(data_index,:,1) = coeffvalues(fitresult);
-    conf = confint(fitresult, 0.95);
-    fitData(data_index,:,2) = (conf(2,:) - conf(1,:)) / 2;
-    fitData(data_index,:,3) = fitData(data_index,:,2) ./ fitData(data_index,:,1);
-
-    % create measurement graph
+    % create measurement data
     % if the size of the error does not fit, extend it accordingly
     dataErrX = xError(rem(data_index - 1, size(xError,1)) + 1, :);
     dataErrY = yError(rem(data_index - 1, size(yError,1)) + 1, :);
@@ -38,6 +31,27 @@ for data_index = 1:data_size
     if size(dataErrY, 2) == 1
         dataErrY = dataErrY * ones(1, points_size);
     end
+    % delete data using the -2 consideration
+    cond = (dataErrX ~= -2) & (dataErrY ~= -2);
+    graphX = xData(data_index,:);
+    graphX = graphX(cond);
+    graphY = yData(data_index,:);
+    graphY = graphY(cond);
+    dataErrX = dataErrX(cond);
+    dataErrY = dataErrY(cond);
+
+    ignore_vector = -ones(size(dataErrX));
+
+    % get regression
+    [xCurve, yCurve] = prepareCurveData(graphX, graphY);
+    fitresult = fit(xCurve, yCurve, ft);
+
+    % extract polynomial values and errors
+    fitData(data_index,:,1) = coeffvalues(fitresult);
+    conf = confint(fitresult, 0.95);
+    fitData(data_index,:,2) = (conf(2,:) - conf(1,:)) / 2;
+    fitData(data_index,:,3) = fitData(data_index,:,2) ./ fitData(data_index,:,1);
+
     if dataErrX == ignore_vector
         if dataErrY == ignore_vector % none - O
             graphics{2 * data_index - 1} = plot(xCurve,yCurve,'o');
@@ -53,14 +67,16 @@ for data_index = 1:data_size
     end
 
     % graph fit result after data to ensure it is drawn in its entirety
-    graphics{2 * data_index} = plot(fitresult);
+    if size(titleStructs.fit, 1) == 1 || titleStructs.fit(data_index) ~= "IGNORE"
+        graphics{2 * data_index} = plot(fitresult);
+    end
     graphics{2 * data_index}.Color = get_color(data_index);
     graphics{2 * data_index - 1}.Color = get_color(data_index);
 
     % titles
     if size(titleStructs.fit, 1) == 1
         titles{2 * data_index} = sprintf(titleStructs.fit, data_index);
-    else
+    elseif titleStructs.fit(data_index) ~= "IGNORE"
         titles{2 * data_index} = sprintf(titleStructs.fit(data_index), data_index);
     end
     if size(titleStructs.data, 1) == 1
@@ -69,12 +85,14 @@ for data_index = 1:data_size
         titles{2 * data_index - 1} = sprintf(titleStructs.data(data_index), data_index);
     end
 end
-legend(titles, 'Location', 'NorthWest', 'Interpreter', 'None');
+warning('off','MATLAB:legend:IgnoringExtraEntries')
+legend(titles(~cellfun('isempty',titles)), 'Location', 'NorthWest', 'Interpreter', 'latex');
+warning('on','MATLAB:legend:IgnoringExtraEntries')
 
 % Label axes
-xlabel(titleStructs.x_axis, 'Interpreter', 'none' );
-ylabel(titleStructs.y_axis, 'Interpreter', 'none' );
-title(titleStructs.title);
+xlabel(titleStructs.x_axis, 'Interpreter', 'latex');
+ylabel(titleStructs.y_axis, 'Interpreter', 'latex');
+title(titleStructs.title, 'Interpreter', 'latex');
 
 grid on
 hold off
