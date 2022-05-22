@@ -39,13 +39,11 @@ for data_index = 1:data_size
 
     ignore_vector = -ones(size(dataErrX));
 
-    if dataErrX == ignore_vector
+    if contains(titleStructs.data(data_index), "Regression")
+        graphics{data_index} = plot(graphX, graphY);
+    elseif dataErrX == ignore_vector
         if dataErrY == ignore_vector % none
-            if contains(titleStructs.data(data_index), "Regression")
-                graphics{data_index} = plot(graphX, graphY);
-            else
-                graphics{data_index} = plot(graphX, graphY, 'o');
-            end
+            graphics{data_index} = plot(graphX, graphY, 'o');
         else % errY
             graphics{data_index} = errorbar(graphX, graphY,dataErrY,'vertical','.');
         end

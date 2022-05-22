@@ -19,7 +19,7 @@ graphics = cell(1,2 * data_size);
 titles = cell(1,2 * data_size);
 
 hold on
-fitData = zeros(data_size,2,3);
+fitData = zeros(data_size,2,4);
 for data_index = 1:data_size
     % create measurement data
     % if the size of the error does not fit, extend it accordingly
@@ -44,15 +44,19 @@ for data_index = 1:data_size
 
     % get regression
     [xCurve, yCurve] = prepareCurveData(graphX, graphY);
-    fitresult = fit(xCurve, yCurve, ft);
+    [fitresult, dataGOF] = fit(xCurve, yCurve, ft);
 
     % extract polynomial values and errors
     fitData(data_index,:,1) = coeffvalues(fitresult);
     conf = confint(fitresult, 0.95);
     fitData(data_index,:,2) = (conf(2,:) - conf(1,:)) / 2;
     fitData(data_index,:,3) = fitData(data_index,:,2) ./ fitData(data_index,:,1);
+    fitData(data_index,:,4) = [dataGOF.rsquare, dataGOF.sse];
 
-    if dataErrX == ignore_vector
+    isRegression = contains(titleStructs.data(data_index), "Regression");
+    if isRegression
+        graphics{2 * data_index - 1} = plot(xCurve,yCurve,'o');
+    elseif dataErrX == ignore_vector
         if dataErrY == ignore_vector % none - O
             graphics{2 * data_index - 1} = plot(xCurve,yCurve,'o');
         else % errY
@@ -67,23 +71,17 @@ for data_index = 1:data_size
     end
 
     % graph fit result after data to ensure it is drawn in its entirety
-    if size(titleStructs.fit, 1) == 1 || titleStructs.fit(data_index) ~= "IGNORE"
+    if titleStructs.fit(data_index) ~= "IGNORE" && ~isRegression
         graphics{2 * data_index} = plot(fitresult);
     end
     graphics{2 * data_index}.Color = get_color(data_index);
-    graphics{2 * data_index - 1}.Color = get_color(data_index);
+    graphics{2 * data_index - 1}.Color = get_color(max(1, data_index - isRegression));
 
     % titles
-    if size(titleStructs.fit, 1) == 1
-        titles{2 * data_index} = sprintf(titleStructs.fit, data_index);
-    elseif titleStructs.fit(data_index) ~= "IGNORE"
+    if titleStructs.fit(data_index) ~= "IGNORE" && ~isRegression
         titles{2 * data_index} = sprintf(titleStructs.fit(data_index), data_index);
     end
-    if size(titleStructs.data, 1) == 1
-        titles{2 * data_index - 1} = sprintf(titleStructs.data, data_index);
-    else
-        titles{2 * data_index - 1} = sprintf(titleStructs.data(data_index), data_index);
-    end
+    titles{2 * data_index - 1} = sprintf(titleStructs.data(data_index), data_index);
 end
 warning('off','MATLAB:legend:IgnoringExtraEntries')
 legend(titles(~cellfun('isempty',titles)), 'Location', 'NorthWest', 'Interpreter', 'latex');

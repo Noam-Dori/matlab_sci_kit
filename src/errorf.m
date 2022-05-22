@@ -19,7 +19,7 @@ errElements = zeros(size(inputVals));
 
 for idx = 1:size(inputVals,1)
     partial = diff(func,symbols(idx));
-    partial_result = double(partial(inputCellArr{:}) .* inputErrs(idx));
+    partial_result = double(partial(inputCellArr{:}) .* reshape(inputErrs(idx, :),size(val)));
     errElements(idx, :) = partial_result(1,:); % this is here for calculations with 3D or higher.
 end
 
