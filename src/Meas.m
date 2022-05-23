@@ -23,7 +23,7 @@ classdef Meas
         function disp(obj)
             disp_exponent = floor(log10(abs(obj.value)));
             err_exponent = floor(log10(abs(obj.err)));
-            err_disp = round(obj.err ./ (10 .^ err_exponent)) .* (10 .^ (err_exponent - disp_exponent));
+            err_disp = ceil(obj.err ./ (10 .^ err_exponent)) .* (10 .^ (err_exponent - disp_exponent));
             val_disp = round(obj.value ./ (10 .^ err_exponent)) .* (10 .^ (err_exponent - disp_exponent));
             cond = disp_exponent <= 2 | disp_exponent > 0;
             val_disp(cond) = val_disp(cond) .* (10 .^ disp_exponent(cond));
