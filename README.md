@@ -318,6 +318,7 @@ Analyzes the relationship between `x`,`y` and to form linear regressions between
 - If a certain fit in `titles.fit` is called `IGNORE`, then the regression line is not drawn (it is however, calculated)
 - If a certain entry in `titles.data` contains the word "Regression", then the error bars are not drawn for that graph,
   and the points are connected as if the points represent a regression. This is particularly useful for theoretical lines.
+  If `%Regression%` is used instead, then the regression argument will not be considered,
 
 **Customization in `x`,`y`**:
 - if all entries in a particular graph are theoretical, i.e. have error `-1`, 

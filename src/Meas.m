@@ -25,7 +25,7 @@ classdef Meas
             err_exponent = floor(log10(abs(obj.err)));
             err_disp = ceil(obj.err ./ (10 .^ err_exponent)) .* (10 .^ (err_exponent - disp_exponent));
             val_disp = round(obj.value ./ (10 .^ err_exponent)) .* (10 .^ (err_exponent - disp_exponent));
-            cond = disp_exponent <= 2 | disp_exponent > 0;
+            cond = disp_exponent <= 2 & disp_exponent > 0;
             val_disp(cond) = val_disp(cond) .* (10 .^ disp_exponent(cond));
             err_disp(cond) = err_disp(cond) .* (10 .^ disp_exponent(cond));
             display = val_disp + "±" + err_disp;
@@ -38,53 +38,53 @@ classdef Meas
             disp(display);
         end
         function result = plus(l,r)
-            if class(l) == "Meas" && class(r) == "Meas"
+            if isa(l, "Meas") && isa(r, "Meas")
                 syms pls(x,y)
                 pls(x,y) = x + y;
                 result = Meas.binary_apply(pls,l,r);
-            elseif class(r) ~= "Meas"
+            elseif ~isa(r, "Meas")
                 syms inc(x)
                 inc(x) = x + r;
                 result = Meas.unary_apply(inc, l);
-            elseif class(l) ~= "Meas"
+            elseif ~isa(l, "Meas")
                 result = r + l;
             end
         end
         function result = times(l,r)
-            if class(l) == "Meas" && class(r) == "Meas"
+            if isa(l, "Meas") && isa(r, "Meas")
                 syms mul(x,y)
                 mul(x,y) = x .* y;
                 result = Meas.binary_apply(mul,l,r);
-            elseif class(r) ~= "Meas"
+            elseif ~isa(r, "Meas")
                 result = Meas.unary_apply(Meas.scalar(r), l);
-            elseif class(l) ~= "Meas"
+            elseif ~isa(l, "Meas")
                 result = r .* l;
             end
         end
         function result = rdivide(l,r)
-            if class(l) == "Meas" && class(r) == "Meas"
+            if isa(l, "Meas") && isa(r, "Meas")
                 result = Meas.binary_apply(Meas.div,l,r);
-            elseif class(r) ~= "Meas"
+            elseif ~isa(r, "Meas")
                 result = Meas.unary_apply(Meas.scalar(1./r), l);
-            elseif class(l) ~= "Meas"
+            elseif ~isa(l, "Meas")
                 syms inve(x)
                 inve(x) = l ./ x;
                 result = Meas.unary_apply(inve, r);
             end
         end
         function result = power(l,r)
-            if class(l) == "Meas" && class(r) == "Meas"
+            if isa(l, "Meas") && isa(r, "Meas")
                 if sum(size(r) ~= size(l)) > 0
                     [l,r] = Meas.matchsizes(l,r);
                 end
                 syms pw(x,y)
                 pw(x,y) = x .^ y;
                 result = Meas.binary_apply(pw,l,r);
-            elseif class(r) ~= "Meas"
+            elseif ~isa(r, "Meas")
                 syms pw(x)
                 pw(x) = x .^ r;
                 result = Meas.unary_apply(pw, l);
-            elseif class(l) ~= "Meas"
+            elseif ~isa(l, "Meas")
                 syms pw(x)
                 pw(x) = l .^ x;
                 result = Meas.unary_apply(pw, l);

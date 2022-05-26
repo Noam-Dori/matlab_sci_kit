@@ -20,6 +20,7 @@ titles = cell(1,2 * data_size);
 
 hold on
 fitData = zeros(data_size,2,4);
+isRegression = contains(titleStructs.data, "Regression");
 for data_index = 1:data_size
     % create measurement data
     % if the size of the error does not fit, extend it accordingly
@@ -53,9 +54,9 @@ for data_index = 1:data_size
     fitData(data_index,:,3) = fitData(data_index,:,2) ./ fitData(data_index,:,1);
     fitData(data_index,:,4) = [dataGOF.rsquare, dataGOF.sse];
 
-    isRegression = contains(titleStructs.data(data_index), "Regression");
-    if isRegression
-        graphics{2 * data_index - 1} = plot(xCurve,yCurve,'o');
+    strrep(titleStructs.data(data_index), "%Regression%", "");
+    if isRegression(data_index)
+        graphics{2 * data_index - 1} = plot(xCurve,yCurve);
     elseif dataErrX == ignore_vector
         if dataErrY == ignore_vector % none - O
             graphics{2 * data_index - 1} = plot(xCurve,yCurve,'o');
@@ -71,14 +72,15 @@ for data_index = 1:data_size
     end
 
     % graph fit result after data to ensure it is drawn in its entirety
-    if titleStructs.fit(data_index) ~= "IGNORE" && ~isRegression
+    if titleStructs.fit(rem(data_index - 1, size(titleStructs.fit,1)) + 1) ~= "IGNORE" && ~isRegression(data_index)
         graphics{2 * data_index} = plot(fitresult);
     end
     graphics{2 * data_index}.Color = get_color(data_index);
-    graphics{2 * data_index - 1}.Color = get_color(max(1, data_index - isRegression));
+    color_pullback = isRegression(data_index) * (1 - isRegression(max(1,data_index - 1)));
+    graphics{2 * data_index - 1}.Color = get_color(max(1, data_index - color_pullback));
 
     % titles
-    if titleStructs.fit(data_index) ~= "IGNORE" && ~isRegression
+    if titleStructs.fit(rem(data_index - 1, size(titleStructs.fit,1)) + 1) ~= "IGNORE" && ~isRegression(data_index)
         titles{2 * data_index} = sprintf(titleStructs.fit(data_index), data_index);
     end
     titles{2 * data_index - 1} = sprintf(titleStructs.data(data_index), data_index);
@@ -95,4 +97,3 @@ title(titleStructs.title, 'Interpreter', 'latex');
 grid on
 hold off
 end
-

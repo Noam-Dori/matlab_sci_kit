@@ -15,6 +15,9 @@ classdef FitMeas < Meas
             obj.rsquare_ = rsquare_;
             obj.sse_ = sse_;
         end
+        function conv = Meas(obj)
+            conv = Meas.from(obj.value, obj.err);
+        end
         function v = rsquare(obj)
             v = reshape([obj(:,1).rsquare_], size(obj, 1), 1);
         end
