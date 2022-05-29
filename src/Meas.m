@@ -236,7 +236,13 @@ classdef Meas
             f(x,y) = x ./ y;
         end
         function obj_list = fit(x, y, titles)
-            obj_list = FitMeas.from(sci_fit(x.value, y.value, x.err, y.err, titles));
+            if isa(x, "string")
+                cat_graph(y, x, titles, 1);
+            elseif isa(y, "string")
+                cat_graph(x, y, titles, 0);
+            else
+                obj_list = FitMeas.from(sci_fit(x.value, y.value, x.err, y.err, titles));
+            end
         end
         function obj_list = merge(varargin)
             size_arr = cellfun(@size,varargin,'UniformOutput',false);
@@ -246,7 +252,7 @@ classdef Meas
             dim1_iter = 0;
             arg_iter = 1;
             while dim1_iter < target_size(1)
-                if class(varargin{arg_iter}) == "symfun"
+                if isa(varargin{arg_iter},"symfun")
                     % take first "dim 2" element out of each "dim 1" row,
                     % and use its equation and the last N arguments before
                     % this equation block to determine the values.
@@ -260,6 +266,9 @@ classdef Meas
                         result = obj_list(dim1_iter-argsize+1:dim1_iter, 1:target_size(2)).apply(func);
                         obj_list(dim1_iter+i, 1:target_size(2)) = result;
                     end
+                elseif isa(varargin{arg_iter},"double")
+                    obj_list(dim1_iter+1:dim1_iter+size_arr{arg_iter}(1), ...
+                        1:size_arr{arg_iter}(2)) = Meas.from(varargin{arg_iter},-1);
                 else
                     obj_list(dim1_iter+1:dim1_iter+size_arr{arg_iter}(1), ...
                         1:size_arr{arg_iter}(2)) = varargin{arg_iter};

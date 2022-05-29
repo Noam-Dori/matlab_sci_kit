@@ -326,6 +326,8 @@ Analyzes the relationship between `x`,`y` and to form linear regressions between
   then the points turn into circles.
 - Any entry with error `-2` is completely ignored: not drawn, and not considered when calculating regressions.
   Acts like an empty space, useful for putting together graphs with different number of measurements.
+- If either `x` or `y` are **string** matrices, then a categorical graph is drawn instead.
+  It also draws error bars according to the measurements, but it does not return a fit object.
 
 **Result**:
 - a new figure is created that draws the graphs provided with the customization specified.
