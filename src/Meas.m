@@ -149,6 +149,65 @@ classdef Meas
             f(arg) = cos(arg);
             result = Meas.unary_apply(f, obj_matrix);
         end
+        function result = sinh(obj_matrix)
+            syms f(arg)
+            f(arg) = sinh(arg);
+            result = Meas.unary_apply(f, obj_matrix);
+        end
+        function result = tanh(obj_matrix)
+            syms f(arg)
+            f(arg) = tanh(arg);
+            result = Meas.unary_apply(f, obj_matrix);
+        end
+        function result = cosh(obj_matrix)
+            syms f(arg)
+            f(arg) = cosh(arg);
+            result = Meas.unary_apply(f, obj_matrix);
+        end
+        function result = asin(obj_matrix)
+            syms f(arg)
+            f(arg) = asin(arg);
+            result = Meas.unary_apply(f, obj_matrix);
+        end
+        function result = atan(obj_matrix)
+            syms f(arg)
+            f(arg) = tan(arg);
+            result = Meas.unary_apply(f, obj_matrix);
+        end
+        function result = acos(obj_matrix)
+            syms f(arg)
+            f(arg) = acos(arg);
+            result = Meas.unary_apply(f, obj_matrix);
+        end
+        function result = asinh(obj_matrix)
+            syms f(arg)
+            f(arg) = asinh(arg);
+            result = Meas.unary_apply(f, obj_matrix);
+        end
+        function result = atanh(obj_matrix)
+            syms f(arg)
+            f(arg) = atanh(arg);
+            result = Meas.unary_apply(f, obj_matrix);
+        end
+        function result = acosh(obj_matrix)
+            syms f(arg)
+            f(arg) = acosh(arg);
+            result = Meas.unary_apply(f, obj_matrix);
+        end
+        function result = sqrt(obj_matrix)
+            syms f(arg)
+            f(arg) = sqrt(arg);
+            result = Meas.unary_apply(f, obj_matrix);
+        end
+        function result = abs(obj_matrix)
+            result = obj_matrix;
+            result.value = abs(result.value);
+        end
+        function result = atan2(l_obj, r_obj)
+            syms f(l,r)
+            f(l,r) = atan2(l,r);
+            result = Meas.binary_apply(f, l_obj, r_obj);
+        end
         function obj_list = mean(obj_matrix)
             [obj_val, obj_err] = stat_errorf('mean', obj_matrix.value, obj_matrix.err);
             obj_list = Meas.from(obj_val, obj_err);

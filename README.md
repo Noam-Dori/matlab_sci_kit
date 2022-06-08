@@ -247,7 +247,11 @@ x_scaled = 10 * x; % 30±1
 - Classic arithmetic: `+`,`-`,`*`,`/`,`^`
 - Equality: `==`,`~=`
 - Trigonometric functions: `sin`,`cos`,`tan`
-- Logarithmic and Exponential: `exp`,`log`
+- Hyperbolic functions: `sinh`, `cosh`, `tanh`
+- Inverse trigonometric functions: `asin`, `atan`, `acos`
+- Inverse hyperbolic functions: `asinh`, `atanh`, `acosh`
+- Logarithm and Exponential: `exp`,`log`
+- Misc.: `abs`, `atan2`, `sqrt`
 
 ### `Meas#apply(sym_func)`
 Applies a generic function on the measurement.
@@ -421,11 +425,71 @@ Meas.fit(entries, categories, categorical_titles);
 ### `FitMeas#slope`
 get the slopes of the regressions. Returns a measurement vector with the size of the number of graphs.
 
+Example:
+```matlab
+titles.title = "title";
+titles.x_axis = "x_axis";
+titles.y_axis = "y_axis";
+titles.fit = "fit";
+titles.data = "data";
+
+x = Meas.from([1,2,3,4,5], 0.1);
+y = Meas.from([3.1,4.9,7.1,8.9,11.1], 0.1);
+fit = Meas.fit(x, y, titles);
+
+fit_slope = fit.slope % 2±0.2
+```
+
 ### `FitMeas#intercept`
 get the y-intercepts of the regressions. Returns a measurement vector with the size of the number of graphs.
+
+Example:
+```matlab
+titles.title = "title";
+titles.x_axis = "x_axis";
+titles.y_axis = "y_axis";
+titles.fit = "fit";
+titles.data = "data";
+
+x = Meas.from([1,2,3,4,5], 0.1);
+y = Meas.from([3.1,4.9,7.1,8.9,11.1], 0.1);
+fit = Meas.fit(x, y, titles);
+
+fit_intercept = fit.intercept % 1±0.5
+```
 
 ### `FitMeas#rsquare`
 get the R^2 of the regressions. Returns a number vector with the size of the number of graphs.
 
+Example:
+```matlab
+titles.title = "title";
+titles.x_axis = "x_axis";
+titles.y_axis = "y_axis";
+titles.fit = "fit";
+titles.data = "data";
+
+x = Meas.from([1,2,3,4,5], 0.1);
+y = Meas.from([3.1,4.9,7.1,8.9,11.1], 0.1);
+fit = Meas.fit(x, y, titles);
+
+fit_rsquare = fit.rsquare % 0.9988
+```
+
 ### `FitMeas#sse`
 get the sums of the squares of the errors of the regressions. Returns a number vector with the size of the number of graphs.
+
+Example:
+```matlab
+titles.title = "title";
+titles.x_axis = "x_axis";
+titles.y_axis = "y_axis";
+titles.fit = "fit";
+titles.data = "data";
+
+x = Meas.from([1,2,3,4,5], 0.1);
+y = Meas.from([3.1,4.9,7.1,8.9,11.1], 0.1);
+fit = Meas.fit(x, y, titles);
+
+fit_sse = fit.sse % 0.0480
+```
