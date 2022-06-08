@@ -21,6 +21,10 @@ titles = cell(1,2 * data_size);
 hold on
 fitData = zeros(data_size,2,4);
 isRegression = contains(titleStructs.data, "Regression");
+titleStructs.data = strrep(titleStructs.data, "%Regression%", "");
+if size(isRegression, 1) == 1
+    isRegression = isRegression .* ones(size(yData,1), 1);
+end
 for data_index = 1:data_size
     % create measurement data
     % if the size of the error does not fit, extend it accordingly
@@ -54,7 +58,6 @@ for data_index = 1:data_size
     fitData(data_index,:,3) = fitData(data_index,:,2) ./ fitData(data_index,:,1);
     fitData(data_index,:,4) = [dataGOF.rsquare, dataGOF.sse];
 
-    strrep(titleStructs.data(data_index), "%Regression%", "");
     if isRegression(data_index)
         graphics{2 * data_index - 1} = plot(xCurve,yCurve);
     elseif dataErrX == ignore_vector
@@ -81,9 +84,9 @@ for data_index = 1:data_size
 
     % titles
     if titleStructs.fit(rem(data_index - 1, size(titleStructs.fit,1)) + 1) ~= "IGNORE" && ~isRegression(data_index)
-        titles{2 * data_index} = sprintf(titleStructs.fit(data_index), data_index);
+        titles{2 * data_index} = sprintf(titleStructs.fit(rem(data_index - 1, size(titleStructs.fit,1)) + 1), data_index);
     end
-    titles{2 * data_index - 1} = sprintf(titleStructs.data(data_index), data_index);
+    titles{2 * data_index - 1} = sprintf(titleStructs.data(rem(data_index - 1, size(titleStructs.data,1)) + 1), data_index);
 end
 warning('off','MATLAB:legend:IgnoringExtraEntries')
 legend(titles(~cellfun('isempty',titles)), 'Location', 'NorthWest', 'Interpreter', 'latex');
