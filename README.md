@@ -22,11 +22,11 @@ current_err = 0.001;
 V = Meas.from(voltage, voltage_err);
 I = Meas.from(current, current_err);
 
-titles.title = 'Voltage vs Direct Current';
-titles.x_axis = 'Direct Current [A]';
-titles.y_axis = 'Voltage [V]';
-titles.fit = 'Regression';
-titles.data = '$2\\Omega Resistor$';
+titles.title = "Voltage vs Direct Current";
+titles.x_axis = "Direct Current [A]";
+titles.y_axis = "Voltage [V]";
+titles.fit = "Regression";
+titles.data = "$2\\Omega Resistor$";
 VI_fit = Meas.fit(I, V, titles);
 
 resistance = VI_fit.slope;
@@ -283,6 +283,18 @@ This program also provides statistical operations, which act very similarly to s
    the y values.
 - `running_avg_2`: the numerical difference between 2 neighbors in dimension 2
 
+Example:
+```matlab
+x = Meas.from([1,2,3,4,5], 0.1);
+y = Meas.from([1,4,9,16,25], 0.1); % x^2
+
+avg_y = mean(y); % "11±0.05"
+diff_x = diff(x); % "1±0.2" "1±0.2" "1±0.2" "1±0.2"
+
+int_xy = integral([x;y]); % "0±0" "2.5±0.4" "9±1" "22±3" "42±4"
+                  % x^3/3 ~  0.3   2.66      9     21.3   41.6      
+```
+
 ## Plotting and Regression Analysis
 
 The program provides support for plotting and analyzing the relationship between measurements.
@@ -335,6 +347,76 @@ Analyzes the relationship between `x`,`y` and to form linear regressions between
 - a specialized measurement matrix is created containing all the information about the regressions. Its dimensions are N*2,
   where N is the number of graphs. The type of this measurement is `FitMeas`, a sub-class of `Meas`, 
   which gives it additional functions and properties, specified below. This is the output of the function.
+
+Example:
+```matlab
+x_meas = Meas.from([1,2,3,4,5], 0.1);
+x_theory = Meas.from([0.5,1.5,2.5,3.5,4.5,5.5], -1);
+y_meas = Meas.from([2,4,6,8,10], 0.1);
+y_theory = Meas.from([1,1.5,2,2.5,3,3.5], -1);
+
+simple_titles.title = "Simple Fit";
+simple_titles.x_axis = "X Axis";
+simple_titles.y_axis = "Y Axis";
+simple_titles.data = "Legend entry - data";
+simple_titles.fit = "Legend entry - fit";
+
+% plots one graph with a visible linear fit, which is returned.
+simple_fit = Meas.fit(x_meas, y_meas, simple_titles);
+
+merged_titles.title = "Fit for 2 Graphs";
+merged_titles.x_axis = "$L_aT^eX Axis Title$";
+merged_titles.y_axis = "Regular axis title";
+merged_titles.data = ["measurement", "theory"];
+merged_titles.fit = ["IGNORE"; "theoretical fit"]; 
+
+% plots 2 graphs with different x and y values, and different array lengths:
+% - plot 1 is the same as before, with errors. However, its regression line was set to not be drawm.
+% - plot 2 has "theoretical data", which is set by the -1 errors in both x and y. Its fit is drawn.
+% the X axis also formats itself using LaTeX
+merged_fit = Meas.fit(Meas.merge(x_meas, x_theory), Meas.merge(y_meas, y_theory), merged_titles);
+
+y_attempt2 = Meas.from([3,6,9,12,15], 0.2);
+
+multi_x_titles.title = "Fit for 2 Graphs";
+multi_x_titles.x_axis = "X axis";
+multi_x_titles.y_axis = "Y Axis";
+multi_x_titles.data = "attempt %d";
+multi_x_titles.fit = "regression for attempt %d"; 
+
+% plots 2 graphs with different y values, but the same x values.
+% note that the legend is autmatically generated from the template, as %d turns into 1 and 2.
+multi_x_fit = Meas.fit(x_meas, [y_meas; y_attempt2], multi_x_titles);
+
+y_nonlinear_meas = Meas.from([1.1,3.9,8.9,16.1,24.9], 0.1);
+y_nonlinear_reg = x_meas^2;
+
+nonlinear_titles.title = "Fit for nonlinear functions";
+nonlinear_titles.x_axis = "X axis";
+nonlinear_titles.y_axis = "Y Axis";
+nonlinear_titles.data = ["measurements", "Regression"];
+nonlinear_titles.fit = "IGNORE";
+
+% plots the 2 graphs, but with the second one being treated as a non-linear regression.
+% note how we set IGNORE on the fit to remove the regression lines.
+% In addition, we set the "data" title for the second graph to be "Regression", which automatically turned it into a smooth line.
+% you can apply this without modifying your title by using %Regression% instead.
+Meas.fit(x_meas, [y_nonlinear_meas; y_nonlinear_reg], nonlinear_titles);
+
+categories = ["Odd Numbers"; "Even Numbers"; "Non-Integers"];
+entries = Meas.from([1,3,5;2,4,6;1.5,1.1,5.4], 0.1);
+
+categorical_titles.title = "Categorical Graph";
+categorical_titles.x_axis = "Numerical axis";
+
+% plots the data as multiple 1D graphs, called a categorical graph, where 1 axis uses string values.
+% you can swap the axes by swapping the order of the labels & entries. 
+% You would also need to change the struct entry for the axis title.
+Meas.fit(entries, categories, categorical_titles);
+% very small side note: it is possible to change the colors of the entries in the categorical plots using titles.fit.
+% it has very weird, but predictable behavior, not worth documenting. It accepts an array of integers like [0;0;1].
+% you can toy around with it if you like.
+```
 
 ### `FitMeas#slope`
 get the slopes of the regressions. Returns a measurement vector with the size of the number of graphs.

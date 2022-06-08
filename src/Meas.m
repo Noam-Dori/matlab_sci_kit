@@ -21,8 +21,10 @@ classdef Meas
             str = string(obj.value) + "±" + string(obj.err);
         end
         function disp(obj)
-            disp_exponent = floor(log10(abs(obj.value)));
-            err_exponent = floor(log10(abs(obj.err)));
+            disp_exponent(obj.value ~= 0) = floor(log10(abs(obj(obj.value ~= 0).value)));
+            disp_exponent(obj.value == 0) = 0;
+            err_exponent(obj.err ~= 0) = floor(log10(abs(obj(obj.err ~= 0).err)));
+            err_exponent(obj.err == 0) = 0;
             err_disp = ceil(obj.err ./ (10 .^ err_exponent)) .* (10 .^ (err_exponent - disp_exponent));
             val_disp = round(obj.value ./ (10 .^ err_exponent)) .* (10 .^ (err_exponent - disp_exponent));
             cond = disp_exponent <= 2 & disp_exponent > 0;
