@@ -21,10 +21,10 @@ classdef Meas
             str = string(obj.value) + "±" + string(obj.err);
         end
         function disp(obj)
+            disp_exponent = zeros(size(obj));
+            err_exponent = zeros(size(obj));
             disp_exponent(obj.value ~= 0) = floor(log10(abs(obj(obj.value ~= 0).value)));
-            disp_exponent(obj.value == 0) = 0;
             err_exponent(obj.err ~= 0) = floor(log10(abs(obj(obj.err ~= 0).err)));
-            err_exponent(obj.err == 0) = 0;
             err_disp = ceil(obj.err ./ (10 .^ err_exponent)) .* (10 .^ (err_exponent - disp_exponent));
             val_disp = round(obj.value ./ (10 .^ err_exponent)) .* (10 .^ (err_exponent - disp_exponent));
             cond = disp_exponent <= 2 & disp_exponent > 0;
@@ -115,6 +115,16 @@ classdef Meas
         end
         function result = ne(l,r)
             result = ~(l == r);
+        end
+        function result = vertcat(varargin)
+            result = Meas.merge(varargin{:});
+        end
+        function result = horzcat(varargin)
+            vertargin = cellfun(@transpose, varargin, 'UniformOutput', false);
+            result = Meas.merge(vertargin{:})';
+        end
+        function result = isnan(obj_matrix)
+            result = obj_matrix.err == -2;
         end
         function obj_list = apply(obj_matrix, f)
             [obj_val, obj_err] = errorf(f, obj_matrix.value, obj_matrix.err);

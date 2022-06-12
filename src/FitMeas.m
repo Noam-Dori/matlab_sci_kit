@@ -45,5 +45,15 @@ classdef FitMeas < Meas
             [obj_list(:,1).sse_] = temp{:};
             [obj_list(:,2).sse_] = temp{:};
         end
+        function titleStruct = titles(title, x_axis, y_axis, data, fit)
+            if size(fit,1) == 1
+                fit = fit';
+            end
+            if size(data,1) == 1
+                data = data';
+            end
+            titleStruct = struct('title', title, 'x_axis', x_axis,...
+                'y_axis', y_axis, 'data', data, 'fit', fit);
+        end
     end
 end
