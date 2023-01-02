@@ -23,5 +23,8 @@ for idx = 1:size(inputVals,1)
     errElements(idx, :) = partial_result(1,:); % this is here for calculations with 3D or higher.
 end
 
-valErr = sqrt(sum(errElements .^ 2, 1));
+theoretical = all(inputErrs < 0, 1);
+errElements(inputErrs < 0) = 0;
+
+valErr = -theoretical + (1-theoretical).*sqrt(sum(errElements .^ 2, 1));
 end
